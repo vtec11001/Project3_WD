@@ -1,0 +1,336 @@
+package edu.uga.cs4300.logiclayer;
+
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import edu.uga.cs4300.persistlayer.MoviePersistImpl;
+
+public class MovieLogicImpl 
+{
+	
+	public ArrayList<String> getMovieName()
+	{
+		MoviePersistImpl moviePersist = new MoviePersistImpl(); 
+		
+		ResultSet rs = moviePersist.retrieveName(); 
+		//gets the result set by calling the persistant layer. 
+		
+		
+		ArrayList<String>ResultList = new ArrayList<String>(); 
+		
+		try 
+		{
+			while (rs.next())
+			{
+				try 
+				{
+					ResultList.add(rs.getString(1));
+					//gets the names from input result set. 
+				}
+				
+				catch (SQLException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+			}
+		} 
+		
+		catch (SQLException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return ResultList; 
+		//returns the names
+		
+	}
+	
+	
+	public int createMovie(String movieName, String userID, String userRank, String userYear)
+	{
+		MoviePersistImpl moviePersist = new MoviePersistImpl();
+		
+		int val = moviePersist.insertMovie(movieName, userID, userRank, userYear); 
+		return val; 
+		
+		//no need to need update, and edit movie. 
+	}
+	
+	
+	
+	public ArrayList<Integer> getRank(ResultSet rs)
+	{
+		ArrayList<Integer>ResultList = new ArrayList<Integer>(); 
+
+		try 
+		{
+			while (rs.next())
+			{
+				int temp = 0; 
+				
+				try 
+				{
+					
+					temp = Integer.parseInt(rs.getString(1)); 
+					ResultList.add(temp);
+					//gets the names from input result set. Rank is an int so we must go from string -> int before adding. 
+				}
+				
+				catch (SQLException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+			}
+		}
+		
+		catch (SQLException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return ResultList; 
+		
+		
+	}
+	
+	
+	public ArrayList<Integer> getID (ResultSet rs)
+	{
+		ArrayList<Integer>ResultList = new ArrayList<Integer>(); 
+
+		try 
+		{
+			while (rs.next())
+			{
+				int temp = 0; 
+				
+				try 
+				{
+					
+					temp = Integer.parseInt(rs.getString(1)); 
+					ResultList.add(temp);
+					//gets the names from input result set. Rank is an int so we must go from string -> int before adding. 
+				}
+				
+				catch (SQLException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+			}
+		}
+		
+		catch (SQLException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return ResultList; 
+		
+	}
+	
+	
+	public ArrayList<Integer>getYear(ResultSet rs)
+	{
+		ArrayList<Integer>ResultList = new ArrayList<Integer>(); 
+
+		try 
+		{
+			while (rs.next())
+			{
+				int temp = 0; 
+				
+				try 
+				{
+					
+					temp = Integer.parseInt(rs.getString(1)); 
+					ResultList.add(temp);
+					//gets the names from input result set. Rank is an int so we must go from string -> int before adding. 
+				}
+				
+				catch (SQLException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+			}
+		}
+		
+		catch (SQLException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return ResultList; 
+		
+	}
+	
+	public ArrayList<String>GetColumn(String query) throws SQLException
+	{
+		MoviePersistImpl mpi = new MoviePersistImpl(); 
+		
+		ArrayList<String>ResultList = new ArrayList<String>(); 
+		
+		ResultSet rs = mpi.ResultColumn(query); 
+
+		ResultSetMetaData rsmd = null;
+		try 
+		{
+			rsmd = rs.getMetaData();
+		}
+		
+		catch (SQLException e1) 
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} 
+		
+		int NumColumns = 0;
+		try 
+		{
+			NumColumns = rsmd.getColumnCount();
+		} 
+		catch (SQLException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+		while (rs.next())
+		{
+			for (int i = 1; i<=NumColumns; i++)
+			{
+				String tempVal = rsmd.getColumnName(i); 
+				ResultList.add(tempVal); 
+				//adds the row element to the result list. 
+			}
+		}
+		
+		return ResultList; 
+		
+	}
+	
+	
+	
+	public ArrayList<String> GetGenre(String query) throws NumberFormatException, SQLException
+	{
+		
+		String movieQuery = "return name, id from movies"; 
+		
+		MoviePersistImpl mpi = new MoviePersistImpl(); 
+		
+		ArrayList<String>ResultList = new ArrayList<String>(); 
+		
+		ResultSet rsGenre = mpi.RetrieveData(query); 
+		//used to first get resultset that contains the movieid and the genre, will not contain names. 
+		
+		ResultSet rsMovieName = mpi.RetrieveData(movieQuery); 
+		//used to then get resultset that contains the moviename and the id, does not contain genre.
+		
+		
+		
+		
+		
+		HashMap<Integer, String>MovieMap = new HashMap<Integer, String>(); 
+		
+		
+		ArrayList<Integer>HoldGenreMovies = new ArrayList<Integer>(); 
+		
+		while (rsGenre.next())
+		{
+			if (rsGenre.getString(1).equals("movie_id"))
+			{
+				ResultSetMetaData rsmd = rsGenre.getMetaData(); 
+				int size = rsmd.getColumnCount(); 
+				//setup used to iterate through the rows of the movie_id column. 
+				
+				for (int i = 1; i<size; i++)
+				{
+					String temp = rsmd.getColumnName(i); 
+					int tempInt = Integer.parseInt(temp); 
+					
+					HoldGenreMovies.add(tempInt); 
+					
+					//when the column is found that holds the corresponding movie_id to specefied genre add to arraylist for comparison use later. 
+					
+					
+				}
+			}
+		}
+		
+		ArrayList<String>TempMovieName = new ArrayList<String>(); 
+		ArrayList<Integer>TempMovieId = new ArrayList<Integer>(); 
+		
+		
+		
+		while (rsMovieName.next())
+		{
+			ResultSetMetaData rsmd = rsMovieName.getMetaData(); 
+			int size = rsmd.getColumnCount(); 
+			
+			
+			if (rsMovieName.getString(1).equals("name"))
+			{
+			
+				for (int i = 1; i<size; i++)
+				{
+					String temp = rsmd.getColumnLabel(i); 
+					TempMovieName.add(temp); 
+				}
+			}
+			
+			else if (rsMovieName.getString(1).equals("id"))
+			{
+				for (int i = 1; i<size; i++)
+				{
+					int tempInt = Integer.parseInt(rsmd.getColumnLabel(i)); 
+					TempMovieId.add(tempInt); 
+				}
+			}
+		}
+		
+		for (int i = 0; i<TempMovieName.size(); i++)
+		{
+			MovieMap.put(TempMovieId.get(i), TempMovieName.get(i)); 
+		}
+		
+		
+		
+		for (int i = 0; i<HoldGenreMovies.size(); i++)
+		{
+			if (MovieMap.containsKey(HoldGenreMovies.get(i)))
+			{
+				ResultList.add(MovieMap.get(HoldGenreMovies.get(i))); 
+			}
+			//used to check if the the following id is within the requested genre. If add to result list. 
+		}
+	
+		
+		return ResultList; 
+		//result list contains only those movies name that were in the selected genre. 
+		
+		
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+
+}
